@@ -28,5 +28,5 @@ app.use(getAllPostsRouter)
 
 
 app.listen(9000,()=>{
-    console.log("the app is listening on the port number 5000")
+    console.log("the app is listening on the port number 9000")
 })
