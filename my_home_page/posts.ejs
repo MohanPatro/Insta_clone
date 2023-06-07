@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    
+    <style>
+        *{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    
+}
+body{
+
+    padding: 30px;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #833ab4;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #fcb045, #fd1d1d, #833ab4);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #fcb045, #fd1d1d, #833ab4)
+}
+.container{
+    
+    min-height:70vh;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    float: left;
+    
+  
+
+}
+
+.container .card{
+margin: 30px;
+min-height: 50vh;
+background: rgba(255, 255, 255, 0.192);
+backdrop-filter: blur(10px);
+width:300px;
+color: #333;
+border-radius: 15px;
+border: 1px solid rgba(43, 43, 43, 0.568);
+padding: 1rem 2rem;
+justify-content: center;
+font-family: sans-serif;
+line-height: 1.5;
+}
+.container .card .content{
+ width: 100%;
+ word-wrap: break-word;
+}
+button{
+    padding: 5px;
+    font-weight: bold;
+    border-radius: 5px;
+    border: hidden;
+
+}
+button:hover{
+    background: #0B486B;
+    background: -webkit-linear-gradient(to right, #F56217, #0B486B); 
+    background: linear-gradient(to right, #F56217, #0B486B); 
+
+}
+.container .card:hover{
+    margin-top:-5px;
+}
+
+
+#content{
+    background: rgba(255, 255, 255, 0.192);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(43, 43, 43, 0.568);
+
+}
+#postButton{
+    padding: 5px;
+    font-weight: bold;
+    border-radius: 5px;
+    border: hidden;
+}
+#postButton:hover{
+    background: #833ab4;
+    background: -webkit-linear-gradient(to right, #fcb045, #fd1d1d, #833ab4); 
+    background: linear-gradient(to right, #fcb045, #fd1d1d, #833ab4)
+}
+    </style>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js">  
+    </script>
+    <script>
+
+        function likePost(postId,userName){
+            fetch(`/likePost/${postId}/${userName}`)
+                .then(()=>{
+                    document.location.reload(true)
+                })
+        }
+
+        $(document).ready(function(){
+            $('#create').click(function(){
+                $('form').slideToggle()
+            })
+        })
+
+
+
+        function posting(user){
+            const data={
+                "text":document.getElementById('content').value
+            }
+            fetch(`/createNewPost/${user}`,{
+                method:'post',
+                body:JSON.stringify(data),
+                headers:{
+         'Content-type': 'application/json; charset=UTF-8'
+        }
+            })
+            .then(()=>{
+                document.location.reload(true)
+            })
+            return false;
+        }
+
+
+
+        function follow(username,user){
+            fetch(`/following/${username}/${user}`)
+                .then(()=>{
+                    document.location.reload(true)
+                })
+        }
+
+
+        function delpost(postId){
+            fetch(`/deletePost/${postId}`)
+            .then(()=>{
+                document.location.reload(true)
+            })
+        }
+
+
+
+        function userDetails(username){
+            fetch(`/getUser/${username}`)
+        }
+        
+    </script>
+</head>
+<body>
+    <button style="float:right;"><a href="/getUser/<%- username %>"> userDetails</a></button>
+    <button>followers <%- followers.length %></button>
+    <button>following <%- follow.following.length %></button>
+    <center><button id="create">createNewPost</button><br><br><br>
+    <form style="display: none;" onsubmit="return posting('<%-username%>')">
+        <textarea name="post" cols="30" rows="5" id="content"></textarea><br>
+        <input type="submit" value="POST" id="postButton">
+    </form>
+
+    </center>
+
+    <% if (posts.length>0) { %>
+        <% for( let i = 0; i <posts.length; i++ ) { %>
+            <div class="container">
+                <div class="card">
+                    <div class="content">
+                        <h2><%- posts[i].userName %></h2><br>
+                        <p><%- posts[i].postContent %></p><br>
+                        <p><%- posts[i].createdAt %></p><br>
+                        <button onclick="likePost('<%- posts[i].postId %>','<%-username %>')">like</button>
+                        <% for( let j = 0; j < likes.length; j++ ) { %>
+                            <% if (posts[i].postId==likes[j].postId) { %>
+                                <%- likes[j].liked %>
+                            <% } %>
+                            <% } %> &nbsp &nbsp
+                            <% if (posts[i].userName==username) { %>
+                                <button onclick="delpost('<%- posts[i].postId %>')">delete</button>
+                            <% } %>&nbsp &nbsp
+                        <% if (follow.following.includes(posts[i].userName)) { %>
+                            <button onclick="follow('<%-username %>','<%- posts[i].userName %>')">following</button> &nbsp &nbsp
+                        
+                        <% } else { %>
+                            <button onclick="follow('<%-username %>','<%- posts[i].userName %>')">follow</button> &nbsp &nbsp   
+                            <% } %>
+                        
+                    </div>
+                </div>
+            </div>
+        <% } %>
+    <% } %>
+    
+</body>
+</html>
+
+
+
