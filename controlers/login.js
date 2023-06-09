@@ -2,13 +2,14 @@ const {Sequelize,sequelize}=require('../models/index')
 const User=require('../models/UserModel')
 const Like=require('../models/LikeModel')
 const post=require('../models/postModel')
+const Following=require('../models/FollowingModel')
 
 
 const newUser=async (req,res)=>{
    try
    {
     const username=req.body.username
-    const pass=req.body.pass
+    const pass=req.body.password
 
 
   const result= await User.findAll({where:{userName:username}})
@@ -27,14 +28,21 @@ const newUser=async (req,res)=>{
             }
 
         )
-                     
-        const allPosts=await post.findAll({where:{'postId':{[Sequelize.Op.notLike]:'%backUp'}}})
-        const likes=await Like.findAll({attributes:['postId',[sequelize.fn('sum',sequelize.col('liked')),'liked']],group:'postId'})
-        const follow=await Following.findOne({attributes:['following'],where:{userName:username}})
-        const followers=await Following.findAll({attributes:['userName'],where:{following:{[Sequelize.Op.contains]:[username]}}})
         
-         res.render('../my_home_page/posts',{'posts':allPosts,"likes":likes,"username":username,'follow':follow,'followers':followers})
+        const followRecord=await Following.create({
+           userName:username
+        }
+         )
+                     
+//         const allPosts=await post.findAll({where:{'postId':{[Sequelize.Op.notLike]:'%backUp'}}})
+//         const likes=await Like.findAll({attributes:['postId',[sequelize.fn('sum',sequelize.col('liked')),'liked']],group:'postId'})
+//         const follow=await Following.findOne({attributes:['following'],where:{userName:username}})
+//         const followers=await Following.findAll({attributes:['userName'],where:{following:{[Sequelize.Op.contains]:[username]}}})
+        
+//          res.render('../my_home_page/posts',{'posts':allPosts,"likes":likes,"username":username,'follow':follow,'followers':followers})
          
+        console.log("success fully registered ")
+        res.send("successfully registered  go back and sign in with your account details ")
     }
    }
    catch(error){
